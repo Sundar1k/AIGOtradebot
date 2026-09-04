@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="140" viewBox="0 0 480 140">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#0f1d33"/>
+    </linearGradient>
+    <linearGradient id="text" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="0.55" stop-color="#4ade80"/>
+      <stop offset="1" stop-color="#a3e635"/>
+    </linearGradient>
+    <linearGradient id="candle" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4ade80"/>
+      <stop offset="1" stop-color="#16a34a"/>
+    </linearGradient>
+    <linearGradient id="candleR" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f87171"/>
+      <stop offset="1" stop-color="#dc2626"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="140" rx="18" fill="url(#bg)" stroke="#1e3a5f" stroke-width="1.5"/>
+  <!-- grid -->
+  <g stroke="#16304f" stroke-width="0.6" opacity="0.55">
+    <line x1="20" y1="40" x2="460" y2="40"/><line x1="20" y1="70" x2="460" y2="70"/>
+    <line x1="20" y1="100" x2="460" y2="100"/><line x1="20" y1="130" x2="460" y2="130"/>
+  </g>
+  <!-- candles: green up then red down then green up (selection story) -->
+  <g stroke-linecap="round">
+    <!-- candle 1: up -->
+    <line x1="348" y1="22" x2="348" y2="118" stroke="#4ade80" stroke-width="2" opacity="0.35"/>
+    <rect x="336" y="42" width="24" height="34" rx="2" fill="url(#candle)"/>
+    <!-- candle 2: down (raw engine) -->
+    <line x1="392" y1="22" x2="392" y2="118" stroke="#f87171" stroke-width="2" opacity="0.35"/>
+    <rect x="380" y="74" width="24" height="34" rx="2" fill="url(#candleR)"/>
+    <!-- candle 3: up strong (selected) -->
+    <line x1="436" y1="22" x2="436" y2="118" stroke="#a3e635" stroke-width="2" opacity="0.35"/>
+    <rect x="424" y="28" width="24" height="52" rx="2" fill="url(#text)"/>
+  </g>
+  <!-- funnel wedge -->
+  <polygon points="312,34 330,34 316,106 298,106" fill="url(#text)" opacity="0.9"/>
+  <polygon points="330,34 312,34 298,106 316,106" fill="#0b1220"/>
+  <!-- text -->
+  <text x="26" y="62" font-family="'Segoe UI',Arial,sans-serif" font-size="44" font-weight="800" fill="url(#text)" letter-spacing="1">AIGO</text>
+  <text x="27" y="92" font-family="'Segoe UI',Arial,sans-serif" font-size="16" font-weight="600" fill="#7dd3fc" letter-spacing="6">TRADEBOT</text>
+  <text x="27" y="112" font-family="'Segoe UI',Arial,sans-serif" font-size="10.5" fill="#64748b" letter-spacing="1.2">SELECTION &gt; PREDICTION · TOPSTEPX FUTURES · 3-MIN BARS</text>
+</svg>

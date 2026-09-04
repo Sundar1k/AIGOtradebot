@@ -1,0 +1,67 @@
+AIGO TRADEBOT PUBLIC LICENSE v1.0 (ATPL-1.0)
+Copyright (c) 2026 Sundar1k
+
+This license applies to all files in this repository EXCEPT those
+explicitly identified in NOTICE.md as upstream-derived, which remain
+licensed under the MIT License (see NOTICE.md).
+
+TERMS
+
+1. GRANT
+   Subject to the conditions below, permission is hereby granted, free of
+   charge, to any person obtaining a copy of this software and associated
+   documentation files (the "Software"), to use, copy, modify, merge,
+   publish, distribute, sublicense, and/or sell copies of the Software.
+
+2. ATTRIBUTION (CREDIT)
+   The author of the Software is Sundar1k. Any use, copy, modification, or
+   distribution of the Software, in whole or in part, must:
+   a) retain this license and the copyright notice above in all copies or
+      substantial portions of the Software; and
+   b) visibly credit Sundar1k as the author of the Software in the README or
+      equivalent project documentation of any distributed copy or
+      derivative work; and
+   c) state clearly that modified versions have been changed from the
+      original.
+
+3. COMMISSION (PROFIT SHARE)
+   If you use the Software, or any derivative of it, to generate trading
+   income — meaning trading decisions, entries, exits, or sizing that are
+   made by, executed by, or materially informed by the Software — you owe
+   Sundar1k a commission of 5% (five percent) of Net Trading Profits.
+
+   "Net Trading Profits" means gross realized trading gains minus the
+   direct costs of that trading: broker commissions and fees, exchange
+   fees, funding/swap costs, slippage, and data/API fees attributable to
+   the trading. It is calculated before personal income tax and before
+   any drawdown of unrealized losses.
+
+   Payment is due quarterly, within 30 days of the end of each calendar
+   quarter in which any Net Trading Profit was realized. Payment must be
+   made in Bitcoin (BTC) to:
+
+     bc1q3xqpc603l80vwcn9dr9d8g7rdevl42mldwvlpn
+
+   You must keep records sufficient to verify the calculation for at
+   least three (3) years and provide a written summary of the calculation
+   to Sundar1k within 30 days of a reasonable request.
+
+4. DERIVATIVE WORKS
+   Any derivative work of the Software must carry the same obligations in
+   this Section (attribution and commission) in its own license terms and
+   must not remove or weaken these obligations.
+
+5. NO WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+   IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+   CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. TRADING INVOLVES
+   SUBSTANTIAL RISK OF LOSS; NOTHING IN THE SOFTWARE OR ITS DOCUMENTATION
+   IS FINANCIAL ADVICE.
+
+6. TERMINATION
+   Any breach of Sections 2, 3, or 4 automatically terminates the rights
+   granted under this license.

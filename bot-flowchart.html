@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlgoTraderBot — Autonomous Trading Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#020617; --card:#0f172a; --line:#1e293b; --txt:#e2e8f0; --dim:#94a3b8;
+    --emerald:#34d399; --cyan:#22d3ee; --violet:#a78bfa; --amber:#fbbf24;
+    --rose:#fb7185; --orange:#fb923c; --slate:#94a3b8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:'JetBrains Mono',monospace;padding:32px}
+  .header{max-width:1240px;margin:0 auto 20px}
+  .header h1{font-size:20px;font-weight:700;display:flex;align-items:center;gap:10px}
+  .pulse{width:10px;height:10px;border-radius:50%;background:var(--emerald);
+    animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(52,211,153,.5)}
+    50%{opacity:.6;box-shadow:0 0 0 8px rgba(52,211,153,0)}}
+  .header .sub{color:var(--dim);font-size:11px;margin-top:6px}
+  .card{max-width:1240px;margin:24px auto 0;background:var(--card);border:1px solid var(--line);
+    border-radius:10px;padding:18px}
+  .card h3{font-size:12px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+  .card ul{list-style:none;font-size:10.5px;color:var(--dim);line-height:1.9}
+  .card ul li::before{content:"• ";color:var(--emerald)}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+  .footer{max-width:1240px;margin:16px auto 0;color:#475569;font-size:9px;text-align:center}
+  .svgcard{max-width:1240px;margin:0 auto;background:var(--card);border:1px solid var(--line);
+    border-radius:12px;padding:12px;overflow:auto}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1><span class="pulse"></span>AlgoTraderBot — Autonomous Trading Flow</h1>
+  <div class="sub">rule detection → Chronos/XGBoost/PPO grading → fine-tuned 7B LLM veto → bracketed entry ·
+     TopstepX 50KTC eval · every 3-min bar · ~/projects/algoTraderBot</div>
+</div>
+
+<div class="svgcard">
+<svg width="1240" height="2020" viewBox="0 0 1240 2020" xmlns="http://www.w3.org/2000/svg" font-family="'JetBrains Mono',monospace">
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+    </pattern>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrowR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#fb7185"/>
+    </marker>
+    <marker id="arrowO" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#fb923c"/>
+    </marker>
+  </defs>
+
+  <rect width="1240" height="2020" fill="url(#grid)"/>
+
+  <!-- ================= ARROWS (drawn first, behind boxes) ================= -->
+  <g stroke="#64748b" stroke-width="1.5" fill="none">
+    <!-- main spine -->
+    <line x1="620" y1="114" x2="620" y2="150"/>
+    <line x1="620" y1="234" x2="620" y2="270"/>
+    <line x1="620" y1="314" x2="620" y2="350"/>
+    <line x1="620" y1="394" x2="620" y2="430"/>
+    <line x1="620" y1="530" x2="620" y2="580"/>
+    <line x1="620" y1="680" x2="620" y2="730"/>
+    <line x1="620" y1="830" x2="620" y2="880"/>
+    <line x1="620" y1="924" x2="620" y2="970"/>
+    <line x1="620" y1="1014" x2="620" y2="1050"/>
+    <line x1="620" y1="1104" x2="620" y2="1150"/>
+    <line x1="620" y1="1250" x2="620" y2="1290"/>
+    <line x1="620" y1="1334" x2="620" y2="1370"/>
+    <line x1="620" y1="1500" x2="620" y2="1540"/>
+    <line x1="620" y1="1640" x2="620" y2="1680"/>
+    <line x1="620" y1="1734" x2="620" y2="1770"/>
+    <line x1="620" y1="1824" x2="620" y2="1860"/>
+    <!-- breaker yes -> halt -->
+    <line x1="490" y1="470" x2="330" y2="470" marker-end="url(#arrow)"/>
+    <!-- hours no -> idle -->
+    <line x1="750" y1="630" x2="880" y2="630" marker-end="url(#arrow)"/>
+    <!-- position yes -> manage only -->
+    <line x1="750" y1="780" x2="880" y2="780" marker-end="url(#arrow)"/>
+    <!-- proba no -> skip -->
+    <line x1="750" y1="1200" x2="880" y2="1200" marker-end="url(#arrow)"/>
+    <!-- gates no -> veto blocked -->
+    <line x1="750" y1="1590" x2="880" y2="1590" marker-end="url(#arrow)"/>
+    <!-- init -> topstepx -->
+    <line x1="850" y1="192" x2="880" y2="118"/>
+    <!-- fetch -> prefetch -->
+    <line x1="800" y1="902" x2="880" y2="882" marker-end="url(#arrowO)"/>
+    <!-- gates -> veto sidecar -->
+    <line x1="850" y1="1435" x2="880" y2="1435" marker-end="url(#arrowO)"/>
+    <!-- watchdog -> manage -->
+    <line x1="880" y1="1745" x2="800" y2="1797" stroke="#fb7185" stroke-dasharray="4,4" marker-end="url(#arrowR)"/>
+    <!-- money lines <- breakers (dashed) -->
+    <line x1="490" y1="700" x2="330" y2="700" stroke="#fb7185" stroke-dasharray="4,4"/>
+    <!-- loop back -->
+    <line x1="440" y1="1895" x2="400" y2="1895"/>
+    <line x1="400" y1="1895" x2="400" y2="292"/>
+    <line x1="400" y1="292" x2="440" y2="292" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- arrow labels -->
+  <g fill="#94a3b8" font-size="8">
+    <text x="632" y="142" >each bar</text>
+    <text x="500" y="455" >yes</text>
+    <text x="632" y="565" >no</text>
+    <text x="762" y="622" >no</text>
+    <text x="632" y="715" >no</text>
+    <text x="762" y="772" >yes</text>
+    <text x="632" y="850" >no</text>
+    <text x="762" y="1192" >no</text>
+    <text x="632" y="1585" >no</text>
+    <text x="762" y="1582" >yes</text>
+    <text x="852" y="185" >REST</text>
+    <text x="806" y="896" >warm cache</text>
+    <text x="856" y="1427" >POST state</text>
+    <text x="860" y="1773" >monitors</text>
+    <text x="405" y="1000" transform="rotate(-90 405 1000)">next 3-min bar (loop)</text>
+  </g>
+
+  <!-- ================= MAIN FLOW BOXES ================= -->
+  <g>
+    <!-- B1 service -->
+    <rect x="440" y="60" width="360" height="54" rx="6" fill="#0f172a"/>
+    <rect x="440" y="60" width="360" height="54" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+    <text x="620" y="82" text-anchor="middle" fill="#e2e8f0" font-size="11" font-weight="600">autotrade.service · systemd user unit</text>
+    <text x="620" y="98" text-anchor="middle" fill="#94a3b8" font-size="9">supervisor.py — always-on · CPU-pinned · every 3-min bar</text>
+
+    <!-- B2 init -->
+    <rect x="390" y="150" width="460" height="84" rx="6" fill="#0f172a"/>
+    <rect x="390" y="150" width="460" height="84" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+    <text x="620" y="170" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="600">INIT — TopstepX auth → pick 50KTC eval → tick specs (fail-closed)</text>
+    <text x="620" y="188" text-anchor="middle" fill="#94a3b8" font-size="9.5">5 BotContexts: NQ · ES · RTY · YM · GC  (+orb lane on NQ/ES/GC)</text>
+    <text x="620" y="204" text-anchor="middle" fill="#94a3b8" font-size="9.5">attach veto_fn · Evolver · reflection memory</text>
+    <text x="620" y="220" text-anchor="middle" fill="#94a3b8" font-size="9.5">restore heartbeat · at_peak · in-flight trade · seen-bar markers</text>
+
+    <!-- B3 wait -->
+    <rect x="440" y="270" width="360" height="44" rx="6" fill="#0f172a"/>
+    <rect x="440" y="270" width="360" height="44" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+    <text x="620" y="290" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="600">WAIT — next 3-min bar boundary</text>
+    <text x="620" y="304" text-anchor="middle" fill="#94a3b8" font-size="8.5">sleep to bar close +2s (restart-safe: old bars never re-fire)</text>
+
+    <!-- B4 fetch balance -->
+    <rect x="440" y="350" width="360" height="44" rx="6" fill="#0f172a"/>
+    <rect x="440" y="350" width="360" height="44" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+    <text x="620" y="370" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="600">FETCH real balance</text>
+    <text x="620" y="384" text-anchor="middle" fill="#94a3b8" font-size="8.5">compute daily_loss · trailing DD from all-time peak · profit window</text>
+
+    <!-- D1 breakers -->
+    <polygon points="620,430 750,480 620,530 490,480" fill="#0f172a" stroke="#1e293b" stroke-width="1.5"/>
+    <polygon points="620,430 750,480 620,530 490,480" fill="rgba(136,19,55,0.35)" stroke="#fb7185" stroke-width="1.5"/>
+    <text x="620" y="476" text-anchor="middle" fill="#fda4af" font-size="10" font-weight="700">CIRCUIT BREAKER</text>
+    <text x="620" y="490" text-anchor="middle" fill="#fda4af" font-size="9">HIT?</text>
+
+    <!-- B5 halt -->
+    <rect x="70" y="415" width="260" height="115" rx="6" fill="#0f172a"/>
+    <rect x="70" y="415" width="260" height="115" rx="6" fill="rgba(136,19,55,0.4)" stroke="#fb7185" stroke-width="1.5"/>
+    <text x="200" y="435" text-anchor="middle" fill="#fda4af" font-size="10" font-weight="700">🚨 HALT — close ALL positions</text>
+    <text x="200" y="451" text-anchor="middle" fill="#fda4af" font-size="9">cancel strays · Telegram alert</text>
+    <text x="200" y="469" text-anchor="middle" fill="#94a3b8" font-size="8.5">daily -$400 loss → halt till next ET day</text>
+    <text x="200" y="483" text-anchor="middle" fill="#94a3b8" font-size="8.5">trailing DD -$1,900 from peak → halt,</text>
+    <text x="200" y="497" text-anchor="middle" fill="#94a3b8" font-size="8.5">auto-resume if back above wall</text>
+    <text x="200" y="513" text-anchor="middle" fill="#94a3b8" font-size="8.5">profit +$500(±150)/25h → lock in</text>
+    <text x="200" y="527" text-anchor="middle" fill="#94a3b8" font-size="8.5">consistency best-day ≥40% → no entries</text>
+
+    <!-- money lines -->
+    <rect x="70" y="650" width="260" height="92" rx="6" fill="#0f172a"/>
+    <rect x="70" y="650" width="260" height="92" rx="6" fill="rgba(136,19,55,0.25)" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="4,4"/>
+    <text x="200" y="670" text-anchor="middle" fill="#fda4af" font-size="9" font-weight="600">TOPSTEP EVAL RULES (50K)</text>
+    <text x="200" y="688" text-anchor="middle" fill="#94a3b8" font-size="8.5">kill: -$2,000/day OR -$2,000 from peak</text>
+    <text x="200" y="704" text-anchor="middle" fill="#94a3b8" font-size="8.5">our breakers sit INSIDE both lines</text>
+    <text x="200" y="722" text-anchor="middle" fill="#94a3b8" font-size="8.5">1 position MAX across all symbols</text>
+    <text x="200" y="736" text-anchor="middle" fill="#94a3b8" font-size="8.5">best day &lt; 40% of total profit (payouts)</text>
+
+    <!-- D2 hours -->
+    <polygon points="620,580 750,630 620,680 490,630" fill="#0f172a" stroke="#1e293b" stroke-width="1.5"/>
+    <polygon points="620,580 750,630 620,680 490,630" fill="rgba(251,146,60,0.28)" stroke="#fb923c" stroke-width="1.5"/>
+    <text x="620" y="624" text-anchor="middle" fill="#fdba74" font-size="10" font-weight="700">TRADING HOURS?</text>
+    <text x="620" y="638" text-anchor="middle" fill="#fdba74" font-size="8.5">AUTOTRADE_HOURS=all</text>
+    <text x="620" y="650" text-anchor="middle" fill="#fdba74" font-size="8.5">Sun18→Fri17 ET</text>
+    <text x="620" y="662" text-anchor="middle" fill="#fdba74" font-size="8.5">(17:00-18:00 break)</text>
+
+    <!-- idle -->
+    <rect x="880" y="608" width="240" height="44" rx="6" fill="#0f172a"/>
+    <rect x="880" y="608" width="240" height="44" rx="6" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="1000" y="628" text-anchor="middle" fill="#cbd5e1" font-size="9.5">⏸ IDLE — skip cycle</text>
+    <text x="1000" y="642" text-anchor="middle" fill="#94a3b8" font-size="8.5">(Sat closed)</text>
+
+    <!-- D3 position -->
+    <polygon points="620,730 750,780 620,830 490,780" fill="#0f172a" stroke="#1e293b" stroke-width="1.5"/>
+    <polygon points="620,730 750,780 620,830 490,780" fill="rgba(251,146,60,0.28)" stroke="#fb923c" stroke-width="1.5"/>
+    <text x="620" y="774" text-anchor="middle" fill="#fdba74" font-size="10" font-weight="700">POSITION OPEN?</text>
+    <text x="620" y="788" text-anchor="middle" fill="#fdba74" font-size="8.5">book cap = 1</text>
+
+    <!-- manage only -->
+    <rect x="880" y="753" width="240" height="54" rx="6" fill="#0f172a"/>
+    <rect x="880" y="753" width="240" height="54" rx="6" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="1000" y="775" text-anchor="middle" fill="#cbd5e1" font-size="9.5">MANAGE ONLY — no new entries</text>
+    <text x="1000" y="791" text-anchor="middle" fill="#94a3b8" font-size="8.5">PPO trail / bracket for owner symbol</text>
+
+    <!-- B8 parallel fetch -->
+    <rect x="440" y="880" width="360" height="44" rx="6" fill="#0f172a"/>
+    <rect x="440" y="880" width="360" height="44" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+    <text x="620" y="900" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="600">PARALLEL fetch 3-min bars × 5 symbols</text>
+    <text x="620" y="914" text-anchor="middle" fill="#94a3b8" font-size="8.5">ThreadPoolExecutor → TopstepX API (decisions stay serial)</text>
+
+    <!-- prefetch -->
+    <rect x="880" y="855" width="300" height="54" rx="6" fill="#0f172a"/>
+    <rect x="880" y="855" width="300" height="54" rx="6" fill="rgba(251,146,60,0.3)" stroke="#fb923c" stroke-width="1.5"/>
+    <text x="1030" y="877" text-anchor="middle" fill="#fdba74" font-size="9.5">VETO PREFETCH (background)</text>
+    <text x="1030" y="893" text-anchor="middle" fill="#94a3b8" font-size="8.5">/decide_batch warms GPU cache — live veto</text>
+    <text x="1030" y="905" text-anchor="middle" fill="#94a3b8" font-size="8.5">answer ~0.01s instead of 17-32s</text>
+
+    <!-- B9 detect -->
+    <rect x="440" y="970" width="360" height="44" rx="6" fill="#0f172a"/>
+    <rect x="440" y="970" width="360" height="44" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+    <text x="620" y="990" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="600">DETECT — strategy lanes fire?</text>
+    <text x="620" y="1004" text-anchor="middle" fill="#94a3b8" font-size="8.5">ema(active) · supertrend · keltner · bos · pattern · orb · cisd_ote</text>
+
+    <!-- B10 grade -->
+    <rect x="440" y="1050" width="360" height="54" rx="6" fill="#0f172a"/>
+    <rect x="440" y="1050" width="360" height="54" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="620" y="1070" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="600">GRADE each fired signal</text>
+    <text x="620" y="1086" text-anchor="middle" fill="#c4b5fd" font-size="8.5">one shared Chronos embedding per bar + lane model</text>
+    <text x="620" y="1099" text-anchor="middle" fill="#c4b5fd" font-size="8.5">→ proba (confidence) · r_hat (expected R)</text>
+
+    <!-- D4 proba -->
+    <polygon points="620,1150 750,1200 620,1250 490,1200" fill="#0f172a" stroke="#1e293b" stroke-width="1.5"/>
+    <polygon points="620,1150 750,1200 620,1250 490,1200" fill="rgba(251,146,60,0.28)" stroke="#fb923c" stroke-width="1.5"/>
+    <text x="620" y="1194" text-anchor="middle" fill="#fdba74" font-size="9.5" font-weight="700">proba IN RANGE?</text>
+    <text x="620" y="1208" text-anchor="middle" fill="#fdba74" font-size="8.5">0.35 floor ↔ 0.50 ceil</text>
+    <text x="620" y="1220" text-anchor="middle" fill="#fdba74" font-size="8.5">floor adaptive (Evolver)</text>
+
+    <!-- skip -->
+    <rect x="880" y="1178" width="240" height="44" rx="6" fill="#0f172a"/>
+    <rect x="880" y="1178" width="240" height="44" rx="6" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="1000" y="1198" text-anchor="middle" fill="#cbd5e1" font-size="9.5">SKIP — too weak / overconfident</text>
+    <text x="1000" y="1212" text-anchor="middle" fill="#94a3b8" font-size="8.5">pattern lane: cooldown after -1R</text>
+
+    <!-- B11 best -->
+    <rect x="440" y="1290" width="360" height="44" rx="6" fill="#0f172a"/>
+    <rect x="440" y="1290" width="360" height="44" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+    <text x="620" y="1310" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="600">BEST signal — highest proba wins</text>
+    <text x="620" y="1324" text-anchor="middle" fill="#94a3b8" font-size="8.5">one entry max per cycle (book cap = 1)</text>
+
+    <!-- B12 gates -->
+    <rect x="390" y="1370" width="460" height="130" rx="6" fill="#0f172a"/>
+    <rect x="390" y="1370" width="460" height="130" rx="6" fill="rgba(136,19,55,0.3)" stroke="#fb7185" stroke-width="1.5"/>
+    <text x="620" y="1390" text-anchor="middle" fill="#fda4af" font-size="10" font-weight="700">ENTRY GATES — veto_fn (FAIL-CLOSED: any error blocks)</text>
+    <text x="620" y="1408" text-anchor="middle" fill="#cbd5e1" font-size="9">1 · EVENT BLACKOUT — FOMC / CPI / NFP windows (deterministic)</text>
+    <text x="620" y="1424" text-anchor="middle" fill="#cbd5e1" font-size="9">2 · REGIME GATE — HMM says panic/high-vol → idle</text>
+    <text x="620" y="1440" text-anchor="middle" fill="#cbd5e1" font-size="9">3 · CANDLE-CONFLICT — 30m pattern opposes signal → block</text>
+    <text x="620" y="1456" text-anchor="middle" fill="#cbd5e1" font-size="9">4 · LLM VETO — state line → 7B GPU → action must equal side</text>
+    <text x="620" y="1472" text-anchor="middle" fill="#cbd5e1" font-size="9">5 · QUALITY — separate /score 1-10; &lt; 6 → setup too weak</text>
+    <text x="620" y="1488" text-anchor="middle" fill="#94a3b8" font-size="8">state line: "SYM 3m. RSI x, EMA10 above/below EMA30, stochastic y rising/falling, ATR z. Score s."</text>
+
+    <!-- veto sidecar -->
+    <rect x="880" y="1385" width="300" height="80" rx="6" fill="#0f172a"/>
+    <rect x="880" y="1385" width="300" height="80" rx="6" fill="rgba(251,146,60,0.3)" stroke="#fb923c" stroke-width="1.5"/>
+    <text x="1030" y="1407" text-anchor="middle" fill="#fdba74" font-size="9.5" font-weight="600">veto.service — GPU sidecar</text>
+    <text x="1030" y="1423" text-anchor="middle" fill="#94a3b8" font-size="8.5">fine-tuned Qwen 7B · GTX 1070 · 6.2 GB</text>
+    <text x="1030" y="1437" text-anchor="middle" fill="#94a3b8" font-size="8.5">:8765 /decide · /decide_batch · /score</text>
+    <text x="1030" y="1451" text-anchor="middle" fill="#94a3b8" font-size="8.5">+ advisory YOLO pattern · TTM 5h fc line</text>
+
+    <!-- D5 gates passed -->
+    <polygon points="620,1540 750,1590 620,1640 490,1590" fill="#0f172a" stroke="#1e293b" stroke-width="1.5"/>
+    <polygon points="620,1540 750,1590 620,1640 490,1590" fill="rgba(52,211,153,0.22)" stroke="#34d399" stroke-width="1.5"/>
+    <text x="620" y="1584" text-anchor="middle" fill="#6ee7b7" font-size="9.5" font-weight="700">ALL GATES PASSED?</text>
+    <text x="620" y="1598" text-anchor="middle" fill="#6ee7b7" font-size="8.5">veto action == signal side</text>
+
+    <!-- veto blocked -->
+    <rect x="880" y="1563" width="240" height="54" rx="6" fill="#0f172a"/>
+    <rect x="880" y="1563" width="240" height="54" rx="6" fill="rgba(136,19,55,0.4)" stroke="#fb7185" stroke-width="1.5"/>
+    <text x="1000" y="1585" text-anchor="middle" fill="#fda4af" font-size="9.5">🚫 VETO — entry blocked</text>
+    <text x="1000" y="1601" text-anchor="middle" fill="#94a3b8" font-size="8.5">reason logged for reflection</text>
+
+    <!-- B14 enter -->
+    <rect x="440" y="1680" width="360" height="54" rx="6" fill="#0f172a"/>
+    <rect x="440" y="1680" width="360" height="54" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+    <text x="620" y="1700" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="600">🎯 ENTER — 1 contract · market order</text>
+    <text x="620" y="1716" text-anchor="middle" fill="#94a3b8" font-size="8.5">bracket: stop 0.5×ATR(20) · target 2.0R</text>
+    <text x="620" y="1729" text-anchor="middle" fill="#94a3b8" font-size="8.5">or PPO trail reprice (trailing mode)</text>
+
+    <!-- B15 manage -->
+    <rect x="440" y="1770" width="360" height="54" rx="6" fill="#0f172a"/>
+    <rect x="440" y="1770" width="360" height="54" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+    <text x="620" y="1790" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="600">MANAGE every bar</text>
+    <text x="620" y="1806" text-anchor="middle" fill="#94a3b8" font-size="8.5">PPO policy trails stop · bracket fills · silent-stop detection</text>
+    <text x="620" y="1819" text-anchor="middle" fill="#94a3b8" font-size="8.5">reconcile strays · restart-safe seen-markers</text>
+
+    <!-- B16 exit -->
+    <rect x="440" y="1860" width="360" height="70" rx="6" fill="#0f172a"/>
+    <rect x="440" y="1860" width="360" height="70" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="620" y="1882" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="600">EXIT — realized R booked</text>
+    <text x="620" y="1898" text-anchor="middle" fill="#c4b5fd" font-size="8.5">Evolver: winrate by quality band → floor/stance</text>
+    <text x="620" y="1912" text-anchor="middle" fill="#c4b5fd" font-size="8.5">reflection: veto reason + outcome → lessons</text>
+    <text x="620" y="1926" text-anchor="middle" fill="#94a3b8" font-size="8">849-trade backtest: 47.2% WR · +0.58R · PF 2.11</text>
+
+    <!-- topstepx external -->
+    <rect x="880" y="60" width="300" height="76" rx="6" fill="#0f172a"/>
+    <rect x="880" y="60" width="300" height="76" rx="6" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="1030" y="84" text-anchor="middle" fill="#cbd5e1" font-size="10" font-weight="600">TopstepX — ProjectX REST API</text>
+    <text x="1030" y="100" text-anchor="middle" fill="#94a3b8" font-size="8.5">50KTC-V2 eval · acct 26251526</text>
+    <text x="1030" y="114" text-anchor="middle" fill="#94a3b8" font-size="8.5">auth · bars · orders · balance · brackets</text>
+    <text x="1030" y="128" text-anchor="middle" fill="#94a3b8" font-size="8.5">(creds: ProjectX email + API key, 0600)</text>
+
+    <!-- watchdog -->
+    <rect x="880" y="1710" width="300" height="70" rx="6" fill="#0f172a"/>
+    <rect x="880" y="1710" width="300" height="70" rx="6" fill="rgba(136,19,55,0.25)" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="4,4"/>
+    <text x="1030" y="1732" text-anchor="middle" fill="#fda4af" font-size="9.5" font-weight="600">WATCHDOG — cron every 10 min</text>
+    <text x="1030" y="1748" text-anchor="middle" fill="#94a3b8" font-size="8.5">service alive? · heartbeat &lt; 15 min stale?</text>
+    <text x="1030" y="1762" text-anchor="middle" fill="#94a3b8" font-size="8.5">halted? → Telegram alert</text>
+    <text x="1030" y="1776" text-anchor="middle" fill="#94a3b8" font-size="8.5">~/.autotrade_state heartbeat JSON</text>
+  </g>
+
+  <!-- ================= LEGEND ================= -->
+  <g transform="translate(60,1960)">
+    <rect x="0" y="0" width="1120" height="40" rx="8" fill="#0f172a" stroke="#1e293b"/>
+    <rect x="16" y="12" width="14" height="14" rx="3" fill="rgba(6,78,59,0.4)" stroke="#34d399"/>
+    <text x="36" y="23" fill="#94a3b8" font-size="9">process</text>
+    <rect x="116" y="12" width="14" height="14" rx="3" fill="rgba(251,146,60,0.28)" stroke="#fb923c"/>
+    <text x="136" y="23" fill="#94a3b8" font-size="9">decision</text>
+    <rect x="216" y="12" width="14" height="14" rx="3" fill="rgba(136,19,55,0.35)" stroke="#fb7185"/>
+    <text x="236" y="23" fill="#94a3b8" font-size="9">breaker / gate</text>
+    <rect x="336" y="12" width="14" height="14" rx="3" fill="rgba(76,29,149,0.4)" stroke="#a78bfa"/>
+    <text x="356" y="23" fill="#94a3b8" font-size="9">ML model</text>
+    <rect x="446" y="12" width="14" height="14" rx="3" fill="rgba(251,146,60,0.3)" stroke="#fb923c"/>
+    <text x="466" y="23" fill="#94a3b8" font-size="9">LLM veto API</text>
+    <rect x="576" y="12" width="14" height="14" rx="3" fill="rgba(30,41,59,0.5)" stroke="#94a3b8"/>
+    <text x="596" y="23" fill="#94a3b8" font-size="9">external</text>
+    <line x1="706" y1="19" x2="736" y2="19" stroke="#fb7185" stroke-dasharray="4,4"/>
+    <text x="744" y="23" fill="#94a3b8" font-size="9">monitoring</text>
+    <text x="854" y="23" fill="#475569" font-size="8.5">supervisor.py · bot.py · veto_server · evolve · reflection · ai_context</text>
+  </g>
+</svg>
+</div>
+
+<div class="grid3">
+  <div class="card">
+    <h3><span class="dot" style="background:#34d399"></span>Decision path</h3>
+    <ul>
+      <li>Mechanical rule detection (EMA cross, ORB, SuperTrend flip, …)</li>
+      <li>Chronos embedding + lane model → proba / expected R</li>
+      <li>proba in [0.35 adaptive floor, 0.50 ceil] → best signal wins</li>
+      <li>5 entry gates → 1 contract, bracket stop 0.5×ATR(20) / TP 2R</li>
+      <li>PPO policy trails the stop until exit</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3><span class="dot" style="background:#fb7185"></span>Guardrails</h3>
+    <ul>
+      <li>Daily -$400 loss · trailing DD -$1,900 from peak</li>
+      <li>Topstep kill lines -$2,000/day & -$2,000 from peak — never reached</li>
+      <li>Event blackout (FOMC/CPI/NFP) · HMM regime gate (panic → idle)</li>
+      <li>LLM veto fail-closed · quality ≥ 6/10 · 1 position max</li>
+      <li>Profit lock +$500(±150)/25h · consistency &lt; 40% best day</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3><span class="dot" style="background:#a78bfa"></span>Learning loop</h3>
+    <ul>
+      <li>Evolver: winrate by quality band → floor 0.35↔0.50, stance</li>
+      <li>Reflection memory: veto reason + outcome → lessons file</li>
+      <li>Missed-trade learner + attribution ledger</li>
+      <li>Measured: 47.2% WR · +0.58R · PF 2.11 (849 trades)</li>
+      <li>Volatility signal (r=+0.39) — sizing/regime, not direction</li>
+    </ul>
+  </div>
+</div>
+
+<div class="footer">AlgoTraderBot · ~/projects/algoTraderBot · ARCHITECTURE.md · generated 2026-08-21 · dark flowchart (SVG, offline)</div>
+</body>
+</html>

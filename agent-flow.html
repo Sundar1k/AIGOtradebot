@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How the Agent Works — Operating Model</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#020617; --card:#0f172a; --line:#1e293b; --txt:#e2e8f0; --dim:#94a3b8;
+    --emerald:#34d399; --cyan:#22d3ee; --violet:#a78bfa; --amber:#fbbf24;
+    --rose:#fb7185; --orange:#fb923c; --slate:#94a3b8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:'JetBrains Mono',monospace;padding:32px}
+  .header{max-width:1240px;margin:0 auto 20px}
+  .header h1{font-size:20px;font-weight:700;display:flex;align-items:center;gap:10px}
+  .pulse{width:10px;height:10px;border-radius:50%;background:var(--cyan);
+    animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  .header .sub{color:var(--dim);font-size:11px;margin-top:6px}
+  .card{max-width:1240px;margin:24px auto 0;background:var(--card);border:1px solid var(--line);
+    border-radius:10px;padding:18px}
+  .card h3{font-size:12px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+  .card ul{list-style:none;font-size:10.5px;color:var(--dim);line-height:1.9}
+  .card ul li::before{content:"• "}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+  .footer{max-width:1240px;margin:16px auto 0;color:#475569;font-size:9px;text-align:center}
+  .svgcard{max-width:1240px;margin:0 auto;background:var(--card);border:1px solid var(--line);
+    border-radius:12px;padding:12px;overflow:auto}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1><span class="pulse"></span>How the Agent Works — Operating Model</h1>
+  <div class="sub">two loops: interactive (you ↔ agent ↔ tools) and autonomous (crons ↔ services ↔ bot) ·
+     the agent builds, maintains, and reports on the stack — it doesn't babysit it</div>
+</div>
+
+<div class="svgcard">
+<svg width="1240" height="1500" viewBox="0 0 1240 1500" xmlns="http://www.w3.org/2000/svg" font-family="'JetBrains Mono',monospace">
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+    </pattern>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrowC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#22d3ee"/>
+    </marker>
+    <marker id="arrowR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#fb7185"/>
+    </marker>
+  </defs>
+
+  <rect width="1240" height="1500" fill="url(#grid)"/>
+
+  <!-- ============ INTERACTIVE LOOP arrows ============ -->
+  <g stroke="#22d3ee" stroke-width="1.5" fill="none">
+    <!-- user -> intake -->
+    <line x1="620" y1="120" x2="620" y2="150" marker-end="url(#arrowC)"/>
+    <!-- intake -> context -->
+    <line x1="620" y1="190" x2="620" y2="215" marker-end="url(#arrowC)"/>
+    <!-- context -> plan -->
+    <line x1="620" y1="270" x2="620" y2="295" marker-end="url(#arrowC)"/>
+    <!-- plan -> act -->
+    <line x1="620" y1="350" x2="620" y2="375" marker-end="url(#arrowC)"/>
+    <!-- act -> verify -->
+    <line x1="620" y1="430" x2="620" y2="455" marker-end="url(#arrowC)"/>
+    <!-- verify -> report -->
+    <line x1="620" y1="510" x2="620" y2="535" marker-end="url(#arrowC)"/>
+    <!-- report -> learn -->
+    <line x1="620" y1="590" x2="620" y2="615" marker-end="url(#arrowC)"/>
+    <!-- learn -> context (loop) -->
+    <line x1="300" y1="640" x2="250" y2="640"/>
+    <line x1="250" y1="640" x2="250" y2="242"/>
+    <line x1="250" y1="242" x2="300" y2="242" marker-end="url(#arrowC)"/>
+    <!-- report -> user (answer) -->
+    <line x1="700" y1="565" x2="820" y2="120"/>
+  </g>
+
+  <!-- act -> tools -->
+  <line x1="800" y1="402" x2="880" y2="402" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ============ AUTONOMOUS STACK arrows ============ -->
+  <g stroke="#64748b" stroke-width="1.5" fill="none">
+    <!-- cron -> services -->
+    <line x1="620" y1="830" x2="620" y2="870" marker-end="url(#arrow)"/>
+    <!-- services -> bot -->
+    <line x1="620" y1="930" x2="620" y2="970" marker-end="url(#arrow)"/>
+    <!-- bot -> broker/account -->
+    <line x1="620" y1="1030" x2="620" y2="1070" marker-end="url(#arrow)"/>
+    <!-- guardian -> broker close -->
+    <line x1="250" y1="855" x2="400" y2="1090" stroke="#fb7185" stroke-dasharray="5,4" marker-end="url(#arrowR)"/>
+  </g>
+
+  <!-- agent -> stack (deploy/maintain) -->
+  <g stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="5,4" fill="none">
+    <line x1="990" y1="300" x2="1180" y2="300"/>
+    <line x1="1180" y1="300" x2="1180" y2="760"/>
+    <line x1="1180" y1="760" x2="900" y2="760" marker-end="url(#arrow)"/>
+  </g>
+  <!-- stack state -> agent (reads) -->
+  <g stroke="#fb923c" stroke-width="1.5" stroke-dasharray="5,4" fill="none">
+    <line x1="250" y1="1170" x2="250" y2="660"/>
+    <line x1="250" y1="660" x2="300" y2="660" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- ============ USER ============ -->
+  <rect x="470" y="70" width="300" height="50" rx="8" fill="#0f172a"/>
+  <rect x="470" y="70" width="300" height="50" rx="8" fill="rgba(34,211,238,0.25)" stroke="#22d3ee" stroke-width="1.5"/>
+  <text x="620" y="92" text-anchor="middle" fill="#67e8f9" font-size="11" font-weight="700">YOU — terminal · message / ping</text>
+  <text x="620" y="108" text-anchor="middle" fill="#94a3b8" font-size="8.5">"now?" · "analyze" · "clean up" · approval</text>
+
+  <!-- ============ AGENT CORE ============ -->
+  <rect x="300" y="150" width="640" height="520" rx="10" fill="#0f172a"/>
+  <rect x="300" y="150" width="640" height="520" rx="10" fill="rgba(34,211,238,0.08)" stroke="#22d3ee" stroke-width="1.5"/>
+  <text x="620" y="172" text-anchor="middle" fill="#67e8f9" font-size="11" font-weight="700">THE AGENT (Hermes) — the 7-stage loop</text>
+
+  <!-- 1 context -->
+  <rect x="330" y="215" width="580" height="55" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+  <text x="620" y="234" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="600">1 · CONTEXT — what the agent knows before acting</text>
+  <text x="620" y="250" text-anchor="middle" fill="#94a3b8" font-size="8.5">memory · user profile · past sessions · SKILLS matched + loaded</text>
+  <text x="620" y="263" text-anchor="middle" fill="#94a3b8" font-size="8.5">e.g. topstep-trading-bot (with the hardcoded doctrine)</text>
+
+  <!-- 2 plan -->
+  <rect x="330" y="295" width="580" height="55" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+  <text x="620" y="314" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="600">2 · PLAN — decide the approach</text>
+  <text x="620" y="330" text-anchor="middle" fill="#94a3b8" font-size="8.5">todo list · which tool · what to verify · approval gates where needed</text>
+  <text x="620" y="343" text-anchor="middle" fill="#94a3b8" font-size="8.5">"show me the flow" → draw · "clean up" → remove/update · "run" → execute</text>
+
+  <!-- 3 act -->
+  <rect x="330" y="375" width="470" height="55" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="565" y="394" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="600">3 · ACT — call tools, real side effects</text>
+  <text x="565" y="410" text-anchor="middle" fill="#c4b5fd" font-size="8.5">terminal · files · web · cron · skill · delegate</text>
+  <text x="565" y="423" text-anchor="middle" fill="#c4b5fd" font-size="8.5">batch independent calls · verify as it goes</text>
+
+  <!-- 4 verify -->
+  <rect x="330" y="455" width="580" height="55" rx="6" fill="rgba(136,19,55,0.3)" stroke="#fb7185" stroke-width="1.5"/>
+  <text x="620" y="474" text-anchor="middle" fill="#fda4af" font-size="10" font-weight="600">4 · VERIFY — evidence, not claims</text>
+  <text x="620" y="490" text-anchor="middle" fill="#94a3b8" font-size="8.5">systemctl · curl · file listings · log output · compile checks</text>
+  <text x="620" y="503" text-anchor="middle" fill="#94a3b8" font-size="8.5">no fabricated success — a blocker is reported honestly</text>
+
+  <!-- 5 report -->
+  <rect x="330" y="535" width="580" height="55" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+  <text x="620" y="554" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="600">5 · REPORT — deliver to you</text>
+  <text x="620" y="570" text-anchor="middle" fill="#94a3b8" font-size="8.5">terminal text · files (flowcharts, prompts, scripts) · numbers</text>
+  <text x="620" y="583" text-anchor="middle" fill="#94a3b8" font-size="8.5">plain language, honest verdicts</text>
+
+  <!-- 6 learn -->
+  <rect x="330" y="615" width="580" height="55" rx="6" fill="rgba(251,146,60,0.25)" stroke="#fb923c" stroke-width="1.5"/>
+  <text x="620" y="634" text-anchor="middle" fill="#fdba74" font-size="10" font-weight="600">6 · LEARN — persist what matters</text>
+  <text x="620" y="650" text-anchor="middle" fill="#94a3b8" font-size="8.5">memory (preferences, environment) · skill patches (doctrine, guardian)</text>
+  <text x="620" y="663" text-anchor="middle" fill="#94a3b8" font-size="8.5">loop back to CONTEXT — next session starts smarter</text>
+
+  <!-- tool belt -->
+  <g>
+    <rect x="880" y="330" width="330" height="150" rx="8" fill="#0f172a"/>
+    <rect x="880" y="330" width="330" height="150" rx="8" fill="rgba(76,29,149,0.25)" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="1045" y="352" text-anchor="middle" fill="#c4b5fd" font-size="9.5" font-weight="700">TOOL BELT</text>
+    <text x="1045" y="372" text-anchor="middle" fill="#94a3b8" font-size="8.5">terminal (build/run/verify)</text>
+    <text x="1045" y="388" text-anchor="middle" fill="#94a3b8" font-size="8.5">files (read/write/patch/diagrams)</text>
+    <text x="1045" y="404" text-anchor="middle" fill="#94a3b8" font-size="8.5">web (search/extract — with caution)</text>
+    <text x="1045" y="420" text-anchor="middle" fill="#94a3b8" font-size="8.5">cron (schedule/remove jobs)</text>
+    <text x="1045" y="436" text-anchor="middle" fill="#94a3b8" font-size="8.5">skill_manage (persist procedures)</text>
+    <text x="1045" y="452" text-anchor="middle" fill="#94a3b8" font-size="8.5">delegate (parallel subagents)</text>
+    <text x="1045" y="468" text-anchor="middle" fill="#94a3b8" font-size="8.5">memory (durable facts)</text>
+  </g>
+
+  <!-- ============ AUTONOMOUS STACK ============ -->
+  <rect x="60" y="740" width="1120" height="470" rx="10" fill="#0f172a"/>
+  <rect x="60" y="740" width="1120" height="470" rx="10" fill="rgba(148,163,184,0.06)" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="8,4"/>
+  <text x="80" y="762" fill="#cbd5e1" font-size="10" font-weight="700">THE AUTONOMOUS STACK — runs 24/7 WITHOUT the agent (agent builds it, maintains it, reads its state)</text>
+
+  <!-- cron row -->
+  <g>
+    <rect x="80" y="780" width="200" height="50" rx="6" fill="rgba(251,146,60,0.25)" stroke="#fb923c" stroke-width="1.5"/>
+    <text x="180" y="800" text-anchor="middle" fill="#fdba74" font-size="9" font-weight="600">watchdog cron · 10 min</text>
+    <text x="180" y="816" text-anchor="middle" fill="#94a3b8" font-size="8">no_agent script · self-heal</text>
+    <text x="180" y="828" text-anchor="middle" fill="#94a3b8" font-size="8">+ POSITION GUARDIAN</text>
+
+    <rect x="300" y="780" width="200" height="50" rx="6" fill="rgba(251,146,60,0.25)" stroke="#fb923c" stroke-width="1.5"/>
+    <text x="400" y="800" text-anchor="middle" fill="#fdba74" font-size="9" font-weight="600">regime-update · 6h</text>
+    <text x="400" y="816" text-anchor="middle" fill="#94a3b8" font-size="8">HMM → regime state file</text>
+
+    <rect x="520" y="780" width="200" height="50" rx="6" fill="rgba(251,146,60,0.25)" stroke="#fb923c" stroke-width="1.5"/>
+    <text x="620" y="800" text-anchor="middle" fill="#fdba74" font-size="9" font-weight="600">doctor · daily 09:05</text>
+    <text x="620" y="816" text-anchor="middle" fill="#94a3b8" font-size="8">deep health check</text>
+
+    <rect x="740" y="780" width="200" height="50" rx="6" fill="rgba(251,146,60,0.25)" stroke="#fb923c" stroke-width="1.5"/>
+    <text x="840" y="800" text-anchor="middle" fill="#fdba74" font-size="9" font-weight="600">walkforward · Sat 18:00</text>
+    <text x="840" y="816" text-anchor="middle" fill="#94a3b8" font-size="8">veto retrain (paused)</text>
+
+    <rect x="960" y="780" width="200" height="50" rx="6" fill="rgba(251,146,60,0.25)" stroke="#fb923c" stroke-width="1.5"/>
+    <text x="1060" y="800" text-anchor="middle" fill="#fdba74" font-size="9" font-weight="600">attribution · Sat 18:30</text>
+    <text x="1060" y="816" text-anchor="middle" fill="#94a3b8" font-size="8">loss-pattern mining</text>
+  </g>
+
+  <!-- services row -->
+  <g>
+    <rect x="300" y="870" width="200" height="60" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+    <text x="400" y="892" text-anchor="middle" fill="#e2e8f0" font-size="9.5" font-weight="600">autotrade.service</text>
+    <text x="400" y="908" text-anchor="middle" fill="#94a3b8" font-size="8">supervisor.py · breakers</text>
+    <text x="400" y="921" text-anchor="middle" fill="#94a3b8" font-size="8">heartbeat → state file</text>
+
+    <rect x="520" y="870" width="200" height="60" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+    <text x="620" y="892" text-anchor="middle" fill="#e2e8f0" font-size="9.5" font-weight="600">veto.service</text>
+    <text x="620" y="908" text-anchor="middle" fill="#94a3b8" font-size="8">7B GPU · :8765</text>
+    <text x="620" y="921" text-anchor="middle" fill="#94a3b8" font-size="8">fail-closed</text>
+
+    <rect x="740" y="870" width="200" height="60" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+    <text x="840" y="892" text-anchor="middle" fill="#e2e8f0" font-size="9.5" font-weight="600">ai-ctx.service</text>
+    <text x="840" y="908" text-anchor="middle" fill="#94a3b8" font-size="8">YOLO+TTM · :8767</text>
+    <text x="840" y="921" text-anchor="middle" fill="#94a3b8" font-size="8">advisory context</text>
+  </g>
+
+  <!-- bot row -->
+  <g>
+    <rect x="440" y="970" width="360" height="60" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="620" y="992" text-anchor="middle" fill="#e2e8f0" font-size="9.5" font-weight="600">THE BOT — detect → select → gates → enter → PPO exit</text>
+    <text x="620" y="1008" text-anchor="middle" fill="#c4b5fd" font-size="8">same funnel as master-flow · doctrine enforced</text>
+    <text x="620" y="1021" text-anchor="middle" fill="#c4b5fd" font-size="8">every 3-min bar · 1 position max</text>
+
+    <rect x="440" y="1070" width="360" height="55" rx="6" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="620" y="1090" text-anchor="middle" fill="#cbd5e1" font-size="9.5" font-weight="600">TopstepX API → eval 26251526</text>
+    <text x="620" y="1106" text-anchor="middle" fill="#94a3b8" font-size="8">balance $47,993.42 (likely dead — halted)</text>
+    <text x="620" y="1118" text-anchor="middle" fill="#94a3b8" font-size="8">guardian closes positions if bot dies</text>
+  </g>
+
+  <!-- state files -->
+  <g>
+    <rect x="80" y="1080" width="300" height="55" rx="6" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="230" y="1100" text-anchor="middle" fill="#cbd5e1" font-size="9" font-weight="600">STATE FILES (single source of truth)</text>
+    <text x="230" y="1116" text-anchor="middle" fill="#94a3b8" font-size="8">~/.autotrade_state · regime.json</text>
+    <text x="230" y="1128" text-anchor="middle" fill="#94a3b8" font-size="8">logs · ledgers · evolve.json</text>
+  </g>
+
+  <!-- deploy/maintain label -->
+  <text x="1186" y="520" transform="rotate(90 1186 520)" fill="#a78bfa" font-size="8">agent deploys · patches · restarts · audits</text>
+  <!-- state read label -->
+  <text x="244" y="920" transform="rotate(-90 244 920)" fill="#fb923c" font-size="8">agent reads state for reports</text>
+
+  <!-- ============ DOCTRINE + LEGEND ============ -->
+  <rect x="60" y="1260" width="1120" height="44" rx="8" fill="#0f172a"/>
+  <rect x="60" y="1260" width="1120" height="44" rx="8" fill="rgba(136,19,55,0.35)" stroke="#fb7185" stroke-width="1.5"/>
+  <text x="620" y="1280" text-anchor="middle" fill="#fda4af" font-size="10" font-weight="700">⛔ DOCTRINE — PREDICT LESS, SELECT BETTER · hardcoded in skill · prompt · DOCTRINE.md · config.py</text>
+  <text x="620" y="1296" text-anchor="middle" fill="#94a3b8" font-size="8">the agent enforces it on every session — direction prediction proposals are rejected out of hand</text>
+
+  <g transform="translate(60,1330)">
+    <rect x="0" y="0" width="1120" height="38" rx="8" fill="#0f172a" stroke="#1e293b"/>
+    <rect x="16" y="11" width="14" height="14" rx="3" fill="rgba(34,211,238,0.25)" stroke="#22d3ee"/>
+    <text x="36" y="22" fill="#94a3b8" font-size="9">interactive loop</text>
+    <rect x="176" y="11" width="14" height="14" rx="3" fill="rgba(6,78,59,0.4)" stroke="#34d399"/>
+    <text x="196" y="22" fill="#94a3b8" font-size="9">agent stages / services</text>
+    <rect x="356" y="11" width="14" height="14" rx="3" fill="rgba(251,146,60,0.25)" stroke="#fb923c"/>
+    <text x="376" y="22" fill="#94a3b8" font-size="9">cron jobs</text>
+    <rect x="476" y="11" width="14" height="14" rx="3" fill="rgba(76,29,149,0.4)" stroke="#a78bfa"/>
+    <text x="496" y="22" fill="#94a3b8" font-size="9">models / tool belt</text>
+    <rect x="646" y="11" width="14" height="14" rx="3" fill="rgba(30,41,59,0.5)" stroke="#94a3b8"/>
+    <text x="666" y="22" fill="#94a3b8" font-size="9">external / state</text>
+    <line x1="806" y1="19" x2="836" y2="19" stroke="#a78bfa" stroke-dasharray="5,4"/>
+    <text x="844" y="22" fill="#94a3b8" font-size="9">agent ↔ stack</text>
+    <line x1="956" y1="19" x2="986" y2="19" stroke="#fb7185" stroke-dasharray="4,4"/>
+    <text x="994" y="22" fill="#94a3b8" font-size="9">guardian safety net</text>
+  </g>
+</svg>
+</div>
+
+<div class="grid3">
+  <div class="card">
+    <h3><span class="dot" style="background:#22d3ee"></span>Interactive loop</h3>
+    <ul>
+      <li>You message → agent loads context (memory, skills, doctrine)</li>
+      <li>Plans → acts (tools) → verifies (evidence) → reports (CLI/files)</li>
+      <li>Learns → memory + skill patches → next session starts smarter</li>
+      <li>Approval gates for destructive/GPU/account-touching work</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3><span class="dot" style="background:#fb923c"></span>Autonomous stack</h3>
+    <ul>
+      <li>Crons run without the agent: watchdog (guardian), regime, doctor</li>
+      <li>Services: autotrade (breakers+heartbeat), veto (7B), ai-ctx</li>
+      <li>Bot trades the eval per the master-flow funnel, doctrine enforced</li>
+      <li>Guardian closes positions if the bot dies — no unmanaged overnights</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3><span class="dot" style="background:#a78bfa"></span>The connection</h3>
+    <ul>
+      <li>Agent BUILDS/maintains the stack; it doesn't babysit it</li>
+      <li>Agent READS state files for reports ("what happened?")</li>
+      <li>Agent removes noise (7 crons today) and patches the skill</li>
+      <li>Doctrine hardcoded at every layer the agent touches</li>
+    </ul>
+  </div>
+</div>
+
+<div class="footer">How the Agent Works — operating model · generated 2026-08-21 · companion to the 4 bot flowcharts</div>
+</body>
+</html>
